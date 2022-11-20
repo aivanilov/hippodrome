@@ -1,6 +1,8 @@
+import lombok.extern.log4j.Log4j2;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Log4j2
 public class Main {
 
     public static void main(String[] args) throws Exception {
@@ -14,6 +16,7 @@ public class Main {
                 new Horse("Вишня", 3)
         );
         Hippodrome hippodrome = new Hippodrome(horses);
+        log.info("Начало скачек. Кол-во участников: {}", hippodrome.getHorses().size());
 
         for (int i = 0; i < 100; i++) {
             hippodrome.move();
@@ -23,9 +26,10 @@ public class Main {
 
         String winnerName = hippodrome.getWinner().getName();
         System.out.println("Победил " + winnerName + "!");
+        log.info("Окончание скачек. Победитель: {}", winnerName);
     }
 
-    private static void watch(Hippodrome hippodrome) throws Exception {
+    private static void watch(Hippodrome hippodrome) {
         hippodrome.getHorses().stream()
                 .map(horse -> ".".repeat((int) horse.getDistance()) + horse.getName())
                 .forEach(System.out::println);
