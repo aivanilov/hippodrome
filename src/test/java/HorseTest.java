@@ -1,7 +1,12 @@
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyDouble;
 
 class HorseTest {
 
@@ -82,5 +87,31 @@ class HorseTest {
                 () -> assertEquals(expectedOne, horseOne.getDistance()),
                 () -> assertEquals(expectedDefault, horseTwo.getDistance())
         );
+    }
+
+    @Test
+    void moveUsesGetRandomDouble() {
+        try (MockedStatic<Horse> staticHorse = Mockito.mockStatic(Horse.class)) {
+            Horse horse = new Horse("anyName", 1, 2);
+            horse.move();
+            staticHorse.verify(() -> Horse.getRandomDouble(0.2, 0.9));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource ({"0.2, 2.6", "0.3, 2.9", "0.5, 3.5", "0.677, 4.031000000000001", "0.9, 4.7"})
+    void moveCalculatesCorrectDistance(double random, double distance) {
+        try (MockedStatic<Horse> staticHorse = Mockito.mockStatic(Horse.class)){
+            staticHorse.when(() -> Horse.getRandomDouble(anyDouble(), anyDouble())).thenReturn(random);
+            Horse horse = new Horse("anyName", 3, 2);
+            horse.move();
+            double horseDistance = horse.getDistance();
+            staticHorse.verify(() -> Horse.getRandomDouble(anyDouble(), anyDouble()));
+            assertEquals(horseDistance, distance);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
